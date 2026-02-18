@@ -8,11 +8,11 @@ module.exports = function (app) {
 
   app.route('/api/check')
     .post((req, res) => {
-
+      // Your logic here
     });
     
   app.route('/api/solve')
     .post((req, res) => {
-
+      // Your logic here
     });
 };

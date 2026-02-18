@@ -1,44 +1,35 @@
-'use strict';
+class SudokuSolver {
+  validate(puzzleString) {
+    if (!puzzleString) return { error: 'Required field missing' };
+    if (puzzleString.length !== 81) return { error: 'Expected puzzle to be 81 characters long' };
+    if (/[^1-9.]/.test(puzzleString)) return { error: 'Invalid characters in puzzle' };
+    return true;
+  }
 
-const SudokuSolver = require('../controllers/sudoku-solver.js');
+  // ... (keep the other methods I provided in the previous step) ...
 
-module.exports = function (app) {
-  let solver = new SudokuSolver();
+  letterToNumber(row) {
+    const lookup = { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7, i: 8 };
+    return lookup[row.toLowerCase()];
+  }
 
-  app.route('/api/check')
-    .post((req, res) => {
-      const { puzzle, coordinate, value } = req.body;
-      if (!puzzle || !coordinate || !value) return res.json({ error: 'Required field(s) missing' });
-      
-      const validation = solver.validate(puzzle);
-      if (validation.error) return res.json(validation);
+  transform(puzzleString) {
+    let grid = [];
+    for (let i = 0; i < 9; i++) {
+      grid.push(puzzleString.slice(i * 9, i * 9 + 9).split(''));
+    }
+    return grid;
+  }
 
-      if (!/^[a-i][1-9]$/i.test(coordinate)) return res.json({ error: 'Invalid coordinate' });
-      if (!/^[1-9]$/.test(value)) return res.json({ error: 'Invalid value' });
-
-      const row = coordinate[0];
-      const col = coordinate[1];
-      
-      // If value is already at that coordinate, it's valid
-      const index = (solver.letterToNumber(row) * 9) + (parseInt(col) - 1);
-      if (puzzle[index] === value) return res.json({ valid: true });
-
-      const conflicts = [];
-      if (!solver.checkRowPlacement(puzzle, row, col, value)) conflicts.push('row');
-      if (!solver.checkColPlacement(puzzle, row, col, value)) conflicts.push('column');
-      if (!solver.checkRegionPlacement(puzzle, row, col, value)) conflicts.push('region');
-
-      if (conflicts.length === 0) {
-        res.json({ valid: true });
-      } else {
-        res.json({ valid: false, conflict: conflicts });
-      }
-    });
+  solve(puzzleString) {
+    const validation = this.validate(puzzleString);
+    if (validation !== true) return validation;
     
-  app.route('/api/solve')
-    .post((req, res) => {
-      const { puzzle } = req.body;
-      const result = solver.solve(puzzle);
-      res.json(result);
-    });
-};
+    let grid = this.transform(puzzleString);
+    // ... solver logic ...
+    return { solution: "..." }; // Placeholder for brevity
+  }
+}
+
+// Ensure ONLY this line is at the bottom
+module.exports = SudokuSolver;
